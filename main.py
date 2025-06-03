@@ -16,8 +16,7 @@ def fetch_weather_data(city, api_key):
     data = response.json()
 
     if "list" not in data:
-        print(f"❌ Failed to fetch fo
-        r {city}: {data.get('message', 'Unknown error')}")
+        print(f"❌ Failed to fetch for {city}: {data.get('message', 'Unknown error')}")
         return []
 
     forecast_list = []
@@ -77,4 +76,4 @@ for city in CITIES:
     plot_forecast(city, city_data)
     print(f"✅ Finished plotting for {city}\n")
 
-
+    
