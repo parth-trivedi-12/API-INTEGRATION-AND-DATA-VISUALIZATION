@@ -78,6 +78,3 @@ for city in CITIES:
     print(f"✅ Finished plotting for {city}\n")
 
 
-
-pass
-neww 
