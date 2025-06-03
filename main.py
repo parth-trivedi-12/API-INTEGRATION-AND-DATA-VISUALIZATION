@@ -4,76 +4,72 @@ import seaborn as sns
 from datetime import datetime
 import matplotlib.dates as mdates
 
-# === CONFIG ===
+# Configuration
 API_KEY = "04f701d763a96b997fa319be23fb6343"
 CITIES = ["Ahmedabad", "Mumbai", "Delhi"]
 UNITS = "metric"
 
-# === Fetch and Parse Weather Data ===
-def fetch_weather_data(city, api_key):
-    url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}&units={UNITS}"
-    response = requests.get(url)
-    data = response.json()
+# Get forecast data from API
+def get_weather_data(city, key):
+    url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={key}&units={UNITS}"
+    res = requests.get(url)
+    info = res.json()
 
-    if "list" not in data:
-        print(f"❌ Failed to fetch for {city}: {data.get('message', 'Unknown error')}")
+    if "list" not in info:
+        print(f"Failed to get data for {city} - {info.get('message', 'No info')}")
         return []
 
-    forecast_list = []
-    for entry in data["list"]:
-        forecast_list.append({
-            "datetime": datetime.strptime(entry["dt_txt"], "%Y-%m-%d %H:%M:%S"),
-            "temp": entry["main"]["temp"],
-            "temp_min": entry["main"]["temp_min"],
-            "temp_max": entry["main"]["temp_max"],
-            "humidity": entry["main"]["humidity"],
-            "weather": entry["weather"][0]["description"].capitalize()
+    records = []
+    for i in info["list"]:
+        records.append({
+            "datetime": datetime.strptime(i["dt_txt"], "%Y-%m-%d %H:%M:%S"),
+            "temp": i["main"]["temp"],
+            "temp_min": i["main"]["temp_min"],
+            "temp_max": i["main"]["temp_max"],
+            "humidity": i["main"]["humidity"],
+            "weather": i["weather"][0]["description"].capitalize()
         })
 
-    return forecast_list
+    return records
 
-# === Plot Forecast ===
-def plot_forecast(city, data):
-    if not data:
+# Graph for temperature and humidity
+def draw_graph(city, records):
+    if not records:
         return
 
-    dates = [entry["datetime"] for entry in data]
-    temps = [entry["temp"] for entry in data]
-    min_temps = [entry["temp_min"] for entry in data]
-    max_temps = [entry["temp_max"] for entry in data]
-    humidity = [entry["humidity"] for entry in data]
-    weather = [entry["weather"] for entry in data]
+    times = [r["datetime"] for r in records]
+    temps = [r["temp"] for r in records]
+    t_min = [r["temp_min"] for r in records]
+    t_max = [r["temp_max"] for r in records]
+    humid = [r["humidity"] for r in records]
 
-    sns.set(style="darkgrid")
-    fig, axs = plt.subplots(2, 1, figsize=(14, 10), sharex=True)
+    sns.set(style="whitegrid")
+    fig, ax = plt.subplots(2, 1, figsize=(13, 9), sharex=True)
 
-    # === Temperature Plot ===
-    axs[0].plot(dates, temps, label="Temperature (°C)", color="royalblue", marker='o')
-    axs[0].plot(dates, min_temps, label="Min Temp", linestyle='--', color="tomato")
-    axs[0].plot(dates, max_temps, label="Max Temp", linestyle='--', color="green")
-    axs[0].set_title(f"Temperature Forecast - {city}")
-    axs[0].set_ylabel("Temperature (°C)")
-    axs[0].legend()
+    # Plot temperature
+    ax[0].plot(times, temps, label="Temp °C", color="blue", marker='.')
+    ax[0].plot(times, t_min, label="Min", linestyle='--', color="orange")
+    ax[0].plot(times, t_max, label="Max", linestyle='--', color="green")
+    ax[0].set_title(f"{city} - Temp Forecast")
+    ax[0].set_ylabel("°C")
+    ax[0].legend()
 
-    # === Humidity Plot ===
-    axs[1].plot(dates, humidity, label="Humidity (%)", color="purple", marker='s')
-    axs[1].set_title(f"Humidity Forecast - {city}")
-    axs[1].set_ylabel("Humidity (%)")
-    axs[1].legend()
+    # Plot humidity
+    ax[1].plot(times, humid, label="Humidity %", color="purple", marker='x')
+    ax[1].set_title(f"{city} - Humidity Forecast")
+    ax[1].set_ylabel("%")
+    ax[1].legend()
 
-    # === Shared Settings ===
-    axs[1].set_xlabel("Date & Time")
-    plt.xticks(rotation=45)
-    axs[1].xaxis.set_major_formatter(mdates.DateFormatter('%m-%d %H:%M'))
+    ax[1].set_xlabel("Date/Time")
+    ax[1].xaxis.set_major_formatter(mdates.DateFormatter('%m-%d %H:%M'))
+    plt.xticks(rotation=40)
 
     plt.tight_layout()
     plt.show()
 
-# === Main Execution ===
-for city in CITIES:
-    print(f"📡 Fetching data for {city}...")
-    city_data = fetch_weather_data(city, API_KEY)
-    plot_forecast(city, city_data)
-    print(f"✅ Finished plotting for {city}\n")
-
-    
+# Run for each city
+for c in CITIES:
+    print(f"Getting weather info for {c}...")
+    weather_data = get_weather_data(c, API_KEY)
+    draw_graph(c, weather_data)
+    print(f"Done with {c}\n")
