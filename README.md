@@ -112,4 +112,7 @@ This project was developed during my internship as a demonstration of my ability
 
 This project helped me understand how APIs work, how to process structured JSON data, and how to build data visualizations from real-world sources. It was also part of my internship assignment where I was asked to create a tool that uses external APIs and represents data visually. I chose weather forecasting because it's something we all interact with daily, and visualizing it helps make sense of changing climate conditions.
 
+*output*
+![Image](https://github.com/user-attachments/assets/9413e6e3-8af5-4f1d-a95a-d60ecbe84cac)
+
 
